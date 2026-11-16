@@ -1,13 +1,4 @@
-"""Repetition counting and static-posture time for one person (pure logic, no clock, no I/O).
 
-REBA's activity score adds +1 when a body part is held static for over a minute and +1 for
-repeated actions more than 4 times a minute; ActivityTracker.activity_score() gives that.
-
-Rep counting works on an "excursion" value: how far the person has moved away from
-upright standing, as the largest of
-    trunk bend / REP_TRUNK_DEG,  knee bend / REP_KNEE_DEG,  arm elevation / REP_ARM_DEG.
-Going above 1.0 and coming back below REP_RELEASE (0.5) is one rep. The component that
-was largest names the movement: bend, squat or reach."""
 import collections
 
 from pipeline import config
@@ -16,17 +7,17 @@ MOVES = {"bend": "back_bend", "squat": "kneel_squat", "reach": "overhead_reach"}
 
 
 def settings():
-    """Thresholds from .env (all optional)."""
+    """Thresholds from .env"""
     return {
-        "trunk_deg": config.num("REP_TRUNK_DEG", 30),        # trunk bend that counts as "down"
-        "knee_deg": config.num("REP_KNEE_DEG", 45),          # knee bend that counts as "down"
-        "arm_deg": config.num("REP_ARM_DEG", 120),           # arm elevation (0 = hanging) that counts as "up"
-        "release": config.num("REP_RELEASE", 0.5),           # fraction of the above to count as "back"
-        "min_seconds": config.num("REP_MIN_SECONDS", 0.25),  # ignore blips shorter than this
-        "set_gap": config.num("REP_SET_GAP_SECONDS", 20),    # no rep for this long starts a new set
-        "rate_per_min": config.num("REP_RATE_PER_MIN", 4),   # more than this many per minute = repetitive
-        "static_seconds": config.num("STATIC_SECONDS", 60),  # held this long = static (REBA +1)
-        "static_tolerance": config.num("STATIC_ANGLE_TOLERANCE", 15),  # degrees of allowed movement
+        "trunk_deg": config.num("REP_TRUNK_DEG", 30),     
+        "knee_deg": config.num("REP_KNEE_DEG", 45),          
+        "arm_deg": config.num("REP_ARM_DEG", 120),           
+        "release": config.num("REP_RELEASE", 0.5),           
+        "min_seconds": config.num("REP_MIN_SECONDS", 0.25),  
+        "set_gap": config.num("REP_SET_GAP_SECONDS", 20),    
+        "rate_per_min": config.num("REP_RATE_PER_MIN", 4),   
+        "static_seconds": config.num("STATIC_SECONDS", 60),  # 
+        "static_tolerance": config.num("STATIC_ANGLE_TOLERANCE", 15), 
         "static_break": config.num("STATIC_BREAK_SECONDS", 1.0),   # movement must last this long to end a hold
         "trunk_min": config.num("STATIC_MIN_TRUNK_DEG", 20),       # below these a body part is "neutral"
         "knee_min": config.num("STATIC_MIN_KNEE_DEG", 30),         #   and cannot be in a static hold
@@ -123,14 +114,7 @@ class RepCounter:
 
 
 class StaticTracker:
-    """How long an awkward posture has been held without change.
-
-    REBA counts a posture as static when "one or more body parts" are held for over a
-    minute, so each body part has its own timer: trunk bend, knee bend, arm elevation.
-    A part's timer runs while it is out of its neutral range (STATIC_MIN_*_DEG) and stays
-    within `static_tolerance` degrees of where the hold began. Movement has to last
-    `static_break` seconds to end a hold, so one bad pose frame does not reset it.
-    Standing upright or walking is neutral and never counts as a static hold."""
+    
 
     PARTS = {"trunk": "trunk_min", "knee": "knee_min", "arm_elevation": "arm_min"}
 
